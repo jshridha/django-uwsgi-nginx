@@ -12,20 +12,15 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-FROM ubuntu:16.04
+FROM python:3.6
 
-MAINTAINER Dockerfiles
+MAINTAINER jshridha@gmail.com
 
 # Install required packages and remove the apt packages cache when done.
 
 RUN apt-get update && \
-    apt-get upgrade -y && \ 	
+    apt-get upgrade -y && \ 
     apt-get install -y \
-	git \
-	python3 \
-	python3-dev \
-	python3-setuptools \
-	python3-pip \
 	nginx \
 	supervisor \
 	sqlite3 && \
@@ -43,15 +38,15 @@ COPY supervisor-app.conf /etc/supervisor/conf.d/
 # COPY requirements.txt and RUN pip install BEFORE adding the rest of your code, this will cause Docker's caching mechanism
 # to prevent re-installing (all your) dependencies when you made a change a line or two in your app.
 
-COPY app/requirements.txt /home/docker/code/app/
-RUN pip3 install -r /home/docker/code/app/requirements.txt
+COPY app/requirements.txt /usr/src/app/
+RUN pip3 install -r /usr/src/app/requirements.txt
 
 # add (the rest of) our code
-COPY . /home/docker/code/
+COPY . /usr/src/app/
 
 # install django, normally you would remove this step because your project would already
 # be installed in the code/app/ directory
-RUN django-admin.py startproject website /home/docker/code/app/
+RUN django-admin.py startproject website /usr/src/app/
 
 EXPOSE 80
 CMD ["supervisord", "-n"]
